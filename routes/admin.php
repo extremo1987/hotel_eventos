@@ -62,7 +62,7 @@ Route::get('facturas/{id}/pdf',
 // 🟦 REPORTES
 // ================================
 Route::get('reportes', [ReportController::class, 'index'])->name('reportes.index');
-
+Route::resource('paquetes', PackageController::class);
 // ================================
 // 🛠 CONFIGURACIÓN DEL SISTEMA
 // ================================
