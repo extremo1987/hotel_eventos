@@ -16,32 +16,33 @@ class SettingController extends Controller
 
     public function update(Request $request)
     {
-        $request->validate([
-            'company_name'  => 'required|string|max:255',
-            'company_rtn'   => 'required|string|max:255',
-            'company_logo'  => 'nullable|image|max:2048',
-        ]);
-
         $settings = Setting::first() ?? new Setting();
+
+        // VALIDACIONES
+        $request->validate([
+            'company_name' => 'nullable|string|max:255',
+            'company_rtn' => 'nullable|string|max:255',
+            'company_logo' => 'nullable|image|max:2048',
+            'discount_value' => 'nullable|numeric|min:0',
+            'extra_tax' => 'nullable|numeric|min:0',
+            'invoice_start_number' => 'nullable|integer|min:1',
+        ]);
 
         // LOGO
         if ($request->hasFile('company_logo')) {
             $file = $request->file('company_logo');
             $name = 'logo_' . time() . '.' . $file->getClientOriginalExtension();
             $file->storeAs('public/config', $name);
-            $settings->company_logo = 'storage/config/' . $name;
+            $settings->company_logo = "storage/config/{$name}";
         }
 
-        // CAMPOS GENERALES
-        $settings->company_name = $request->company_name;
-        $settings->company_rtn = $request->company_rtn;
-        $settings->company_phone = $request->company_phone;
-        $settings->company_email = $request->company_email;
-        $settings->company_address = $request->company_address;
-
-        // FACTURACIÓN
-        $settings->invoice_prefix = $request->invoice_prefix;
-        $settings->invoice_start_number = $request->invoice_start_number;
+        // GUARDAR DATOS
+        $settings->fill($request->only([
+            'company_name', 'company_rtn', 'company_phone', 'company_email', 'company_address',
+            'invoice_prefix', 'invoice_start_number',
+            'tax_15_enabled', 'tax_18_enabled', 'extra_tax',
+            'discount_enabled', 'discount_type', 'discount_value',
+        ]));
 
         $settings->save();
 
